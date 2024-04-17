@@ -6,9 +6,11 @@
     java_packages:
       CentOS: java-1.8.0-openjdk
       Ubuntu: openjdk-8-jdk
+      Debian: openjdk-8-jdk
       Linux: java-1.8.0-openjdk
     maven_version: 3.9.6
     tomcat_version: 9
+    tomcat_version_minor: 0 # Define tomcat_version_minor here
   tasks:
     - name: Install Git
       package:
@@ -24,7 +26,7 @@
     - name: Install Java for Ubuntu
       become: yes
       apt:
-        name: "{{ java_packages['Ubuntu'] }}"
+        name: "{{ java_packages['Debian'] }}" # Corrected to 'Debian'
         state: present
       when: ansible_distribution == "Ubuntu"
 
@@ -48,4 +50,3 @@
         name: tomcat
         enabled: yes
         state: started
-
