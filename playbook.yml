@@ -11,7 +11,7 @@
     tomcat_version: 7.0.94
     tomcat_version_minor: 0 # Define tomcat_version_minor here
   tasks:
-   - ⁠name: Install Git on Amazon Linux
+    - name: Install Git on Amazon Linux
       dnf:
         name: git
         state: present
