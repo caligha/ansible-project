@@ -7,7 +7,7 @@
       CentOS: java-11
       Ubuntu: openjdk-11-jdk
       Debian: openjdk-11-jdk
-      Linux: java-11
+      Amazon: java-11
     tomcat_version: 7.0.94
     tomcat_version_minor: 0 # Define tomcat_version_minor here
   tasks:
@@ -31,7 +31,7 @@
 
     - name: Install Java
       package:
-        name: "{{ java_packages[ansible_distribution] }}"
+        name: "{{ java_packages.get(ansible_distribution, 'java-11') }}"
         state: present
       when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
 
@@ -44,7 +44,7 @@
     - name: Install Java for Ubuntu
       become: yes
       apt:
-        name: "{{ java_packages['Debian'] }}"
+        name: "{{ java_packages.get('Debian', 'openjdk-11-jdk') }}"
         state: present
       when: ansible_distribution == "Ubuntu"
 
@@ -54,18 +54,18 @@
   tasks:
     - name: Download Apache Tomcat 7.0.94
       get_url:
-        url: "https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.94/bin/apache-tomcat-7.0.94.tar.gz"
-        dest: "/tmp/apache-tomcat-7.0.94.tar.gz"
+        url: "https://archive.apache.org/dist/tomcat/tomcat-{{ tomcat_version }}/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
+        dest: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
 
     - name: Extract Tomcat Archive
       ansible.builtin.unarchive:
-        src: "/tmp/apache-tomcat-7.0.94.tar.gz"
+        src: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
         dest: "/opt"
         remote_src: yes
 
     - name: Set Permissions
       file:
-        path: "/opt/apache-tomcat-7.0.94"
+        path: "/opt/apache-tomcat-{{ tomcat_version }}"
         state: directory
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
@@ -74,7 +74,6 @@
 
     - name: Start Apache Tomcat
       ansible.builtin.service:
-        name: tomcat
+        name: tomcat{{ tomcat_version_minor }}
         state: started
         enabled: yes
-
