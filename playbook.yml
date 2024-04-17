@@ -28,11 +28,11 @@
         remote_src: yes
       when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
 
-  - name: Set up Maven environment variables
-  set_fact:
-    M2_HOME: "/opt/apache-maven-{{ maven_version }}"
-    PATH: "{{ M2_HOME }}/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
+    - name: Set up Maven environment variables
+      set_fact:
+        M2_HOME: "/opt/apache-maven-{{ maven_version }}"
+        PATH: "{{ M2_HOME }}/bin:{{ ansible_env.PATH }}"
+      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
 
     - name: Install Apache Tomcat
       become_user: root
@@ -56,3 +56,4 @@
         enabled: yes
         state: started
       when: ansible_distribution == "CentOS" or ansible_distribution == "Ubuntu"
+
