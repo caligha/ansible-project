@@ -16,13 +16,13 @@
       when: ansible_os_family == 'Debian'
 
     - name: Install Git on CentOS
-      dnf:
+      yum:
         name: git
         state: present
       when: ansible_os_family == 'RedHat'
 
     - name: Install Java for CentOS
-      dnf:
+      yum:
         name: java-11-openjdk
         state: present
       when: ansible_os_family == 'RedHat'
@@ -53,4 +53,3 @@
         name: tomcat
         state: started
       ignore_errors: yes
-
