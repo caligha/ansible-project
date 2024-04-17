@@ -20,12 +20,12 @@
       package:
         name: "{{ java_packages[ansible_distribution] }}"
         state: present
-      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian" 
+      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
 
     - name: Update apt cache
       become: yes
-       command: apt update
-     when: ansible_distribution == "Ubuntu"
+      command: apt update
+      when: ansible_distribution == "Ubuntu"
 
     - name: Install Java for Ubuntu
       become: yes
