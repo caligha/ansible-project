@@ -3,18 +3,18 @@
    hosts: all
    become: yes
   
-    - name: Download Apache Tomcat 7.0.94
+- name: Download Apache Tomcat 7.0.94
       get_url:
         url: "https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.94/bin/apache-tomcat-7.0.94.tar.gz"
         dest: "/tmp/apache-tomcat-7.0.94.tar.gz"
 
-    - name: Extract Tomcat Archive
+- name: Extract Tomcat Archive
       ansible.builtin.unarchive:
         src: "/tmp/apache-tomcat-7.0.94.tar.gz"
         dest: "/opt"
         remote_src: yes
 
-    - name: Set Permissions
+- name: Set Permissions
       file:
         path: "/opt/apache-tomcat-7.0.94"
         state: directory
