@@ -9,7 +9,6 @@
       Linux: java-1.8.0-openjdk
     maven_version: 3.9.6
     tomcat_version: 9
-    tomcat_version_minor: 0  # Assuming this variable is defined somewhere
   tasks:
     - name: Install Git
       package:
@@ -20,6 +19,14 @@
       package:
         name: "{{ java_packages[ansible_distribution] }}"
         state: present
+      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
+
+    - name: Install Java for Ubuntu
+      become: yes
+      apt:
+        name: "{{ java_packages['Ubuntu'] }}"
+        state: present
+      when: ansible_distribution == "Ubuntu"
 
     - name: Download and extract Maven
       unarchive:
@@ -29,10 +36,25 @@
       when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
 
     - name: Set up Maven environment variables
-      set_fact:
+      environment:
         M2_HOME: "/opt/apache-maven-{{ maven_version }}"
-        PATH: "{{ M2_HOME }}/bin:{{ ansible_env.PATH }}"
+        PATH: "{{ ansible_env.PATH }}:/opt/apache-maven-{{ maven_version }}/bin"
       when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
+
+    - name: Download and extract Maven for Ubuntu
+      become: yes
+      unarchive:
+        src: "http://mirror.linux-ia64.org/apache/maven/maven-{{ maven_version.split('.')[0] }}/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
+        dest: "/opt/"
+        remote_src: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Set up Maven environment variables for Ubuntu
+      become: yes
+      environment:
+        M2_HOME: "/opt/apache-maven-{{ maven_version }}"
+        PATH: "{{ ansible_env.PATH }}:/opt/apache-maven-{{ maven_version }}/bin"
+      when: ansible_distribution == "Ubuntu"
 
     - name: Install Apache Tomcat
       become_user: root
@@ -40,7 +62,6 @@
         url: "https://downloads.apache.org/tomcat/tomcat-{{ tomcat_version }}/v{{ tomcat_version }}.{{ tomcat_version_minor }}/bin/apache-tomcat-{{ tomcat_version }}.{{ tomcat_version_minor }}.tar.gz"
         dest: "/tmp/apache-tomcat-{{ tomcat_version }}.{{ tomcat_version_minor }}.tar.gz"
       register: tomcat_download
-      when: ansible_distribution == "CentOS" or ansible_distribution == "Ubuntu"
 
     - name: Extract Tomcat tarball
       become_user: root
@@ -52,8 +73,6 @@
 
     - name: Start Apache Tomcat
       systemd:
-        name: tomcat{{ tomcat_version }}
+        name: tomcat
         enabled: yes
         state: started
-      when: ansible_distribution == "CentOS" or ansible_distribution == "Ubuntu"
-
