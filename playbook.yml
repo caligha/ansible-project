@@ -37,9 +37,9 @@
 
     - name: Set up Maven environment variables
       environment:
-       M2_HOME: "/opt/apache-maven-{{ maven_version }}"
+        name: M2_HOME
+        value: "/opt/apache-maven-{{ maven_version }}"
       when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
-
 
     - name: Download and extract Maven for Ubuntu
       become: yes
@@ -51,7 +51,7 @@
 
     - name: Set up Maven environment variables for Ubuntu
       become: yes
-      ansible.builtin.environment:
+      environment:
         name: M2_HOME
         value: "/opt/apache-maven-{{ maven_version }}"
       when: ansible_distribution == "Ubuntu"
@@ -76,3 +76,4 @@
         name: tomcat
         enabled: yes
         state: started
+
