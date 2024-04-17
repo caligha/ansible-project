@@ -1,0 +1,10 @@
+# playbook.yml
+---
+- name: Configure Servers and Deploy Application
+  hosts: all
+  become: yes
+  roles:
+    - maven
+    - java
+    - tomcat
+    - git

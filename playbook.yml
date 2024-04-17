@@ -1,10 +1,57 @@
-# playbook.yml
 ---
-- name: Configure Servers and Deploy Application
+ - ⁠name: Install Git, Java, Maven, and Apache Tomcat
   hosts: all
   become: yes
-  roles:
-    - maven
-    - java
-    - tomcat
-    - git
+  vars:
+    java_packages:
+      CentOS: java-1.8.0-openjdk
+      Ubuntu: openjdk-8-jdk
+      Linux: java-1.8.0-openjdk
+    maven_version: 3.9.6
+    tomcat_version: 9
+  tasks:
+    - name: Install Git
+      package:
+        name: git
+        state: present
+
+    - name: Install Java
+      package:
+        name: "{{ java_packages[ansible_distribution] }}"
+        state: present
+
+    - name: Download and extract Maven
+      unarchive:
+        src: "http://mirror.linux-ia64.org/apache/maven/maven-{{ maven_version.split('.')[0] }}/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
+        dest: "/opt/"
+        remote_src: yes
+      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
+
+    - name: Set up Maven environment variables
+      environment:
+        M2_HOME: "/opt/apache-maven-{{ maven_version }}"
+        PATH: "{{ M2_HOME }}/bin:{{ ansible_env.PATH }}"
+      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
+
+    - name: Install Apache Tomcat
+      become_user: root
+      get_url:
+        url: "https://downloads.apache.org/tomcat/tomcat-{{ tomcat_version }}/v{{ tomcat_version }}.{{ tomcat_version_minor }}/bin/apache-tomcat-{{ tomcat_version }}.{{ tomcat_version_minor }}.tar.gz"
+        dest: "/tmp/apache-tomcat-{{ tomcat_version }}.{{ tomcat_version_minor }}.tar.gz"
+      register: tomcat_download
+      when: ansible_distribution == "CentOS" or ansible_distribution == "Ubuntu"
+
+    - name: Extract Tomcat tarball
+      become_user: root
+      ansible.builtin.unarchive:
+        src: "/tmp/apache-tomcat-{{ tomcat_version }}.{{ tomcat_version_minor }}.tar.gz"
+        dest: "/opt/"
+        remote_src: yes
+      when: tomcat_download.changed
+
+    - name: Start Apache Tomcat
+      systemd:
+        name: tomcat
+        enabled: yes
+        state: started
+      when: ansible_distribution == "CentOS" or ansible_distribution == "Ubuntu"
