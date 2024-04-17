@@ -8,7 +8,6 @@
       Ubuntu: openjdk-11-jdk
       Debian: openjdk-11-jdk
       Linux: java-11
-    maven_version: 3.9.6
     tomcat_version: 7.0.94
     tomcat_version_minor: 0 # Define tomcat_version_minor here
   tasks:
@@ -21,7 +20,12 @@
       package:
         name: "{{ java_packages[ansible_distribution] }}"
         state: present
-      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
+      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian" 
+
+    - name: Update apt cache
+      become: yes
+       command: apt update
+     when: ansible_distribution == "Ubuntu"
 
     - name: Install Java for Ubuntu
       become: yes
