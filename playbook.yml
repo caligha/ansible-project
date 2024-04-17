@@ -1,5 +1,5 @@
 ---
- - ⁠name: Install Git, Java, Maven, and Apache Tomcat
+- ⁠name: Install Git, Java, Maven, and Apache Tomcat
   hosts: all
   become: yes
   vars:
