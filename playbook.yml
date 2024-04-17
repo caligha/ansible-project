@@ -17,11 +17,6 @@
         state: present
       when: ansible_pkg_mgr == "dnf" and ansible_distribution == "Amazon"
 
-    - name: Debug Ansible facts for Amazon Linux
-      debug: 
-        var: ansible_pkg_mgr
-      when: ansible_distribution == "Amazon"
-
     - name: Install Git on CentOS
       yum:
         name: git
@@ -32,7 +27,7 @@
       apt:
         name: git
         state: present
-      when: ansible_pkg_mgr == "apt"
+      when: ansible_pkg_mgr == "apt" and ansible_distribution == "Ubuntu"
 
     - name: Install Java
       package:
@@ -42,13 +37,14 @@
 
     - name: Update apt cache
       become: yes
-      command: apt update
+      apt:
+        update_cache: yes
       when: ansible_distribution == "Ubuntu"
 
     - name: Install Java for Ubuntu
       become: yes
       apt:
-        name: "{{ java_packages['Debian'] }}" # Corrected to 'Debian'
+        name: "{{ java_packages['Debian'] }}"
         state: present
       when: ansible_distribution == "Ubuntu"
 
@@ -77,7 +73,8 @@
         mode: "0755"
 
     - name: Start Apache Tomcat
-      systemd:
+      ansible.builtin.service:
         name: tomcat
-        enabled: yes
         state: started
+        enabled: yes
+
