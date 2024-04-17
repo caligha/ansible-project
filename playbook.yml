@@ -1,5 +1,5 @@
 ---
-- name: Install Git, Java, Maven, and Apache Tomcat
+- name: Install Git, Java, and Apache Tomcat
   hosts: all
   become: yes
   vars:
@@ -26,34 +26,6 @@
       apt:
         name: "{{ java_packages['Ubuntu'] }}"
         state: present
-      when: ansible_distribution == "Ubuntu"
-
-    - name: Download and extract Maven
-      unarchive:
-        src: "http://mirror.linux-ia64.org/apache/maven/maven-{{ maven_version.split('.')[0] }}/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
-        dest: "/opt/"
-        remote_src: yes
-      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
-
-    - name: Set up Maven environment variables
-      environment:
-        name: M2_HOME
-        value: "/opt/apache-maven-{{ maven_version }}"
-      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
-
-    - name: Download and extract Maven for Ubuntu
-      become: yes
-      unarchive:
-        src: "http://mirror.linux-ia64.org/apache/maven/maven-{{ maven_version.split('.')[0] }}/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
-        dest: "/opt/"
-        remote_src: yes
-      when: ansible_distribution == "Ubuntu"
-
-    - name: Set up Maven environment variables for Ubuntu
-      become: yes
-      environment:
-        name: M2_HOME
-        value: "/opt/apache-maven-{{ maven_version }}"
       when: ansible_distribution == "Ubuntu"
 
     - name: Install Apache Tomcat
