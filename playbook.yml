@@ -1,5 +1,5 @@
 ---
-- ⁠name: Install Git, Java, Maven, and Apache Tomcat
+- name: Install Git, Java, Maven, and Apache Tomcat
   hosts: all
   become: yes
   vars:
@@ -9,6 +9,7 @@
       Linux: java-1.8.0-openjdk
     maven_version: 3.9.6
     tomcat_version: 9
+    tomcat_version_minor: 0  # Assuming this variable is defined somewhere
   tasks:
     - name: Install Git
       package:
@@ -51,7 +52,7 @@
 
     - name: Start Apache Tomcat
       systemd:
-        name: tomcat
+        name: tomcat{{ tomcat_version }}
         enabled: yes
         state: started
       when: ansible_distribution == "CentOS" or ansible_distribution == "Ubuntu"
