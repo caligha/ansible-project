@@ -1,9 +1,8 @@
 ---
-
-- name: Install Apache Tomcat
-  hosts: all
-  become: yes
-  tasks:
+-  name: Install Apache Tomcat
+   hosts: all
+   become: yes
+  
     - name: Download Apache Tomcat 7.0.94
       get_url:
         url: "https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.94/bin/apache-tomcat-7.0.94.tar.gz"
