@@ -4,17 +4,17 @@
   become: yes
   vars:
     java_packages:
-      CentOS: java-1.8.0-openjdk
-      Ubuntu: openjdk-8-jdk
-      Debian: openjdk-8-jdk
-      Linux: java-1.8.0-openjdk
+      CentOS: java-11
+      Ubuntu: openjdk-11-jdk
+      Debian: openjdk-11-jdk
+      Linux: java-11
     maven_version: 3.9.6
-    tomcat_version: 9
+    tomcat_version: 7.0.94
     tomcat_version_minor: 0 # Define tomcat_version_minor here
   tasks:
     - name: Install Git
       package:
-        name: git
+        name: "{{ 'git' if ansible_distribution == 'CentOS' or ansible_distribution == 'Amazon' else 'git-core' }}"
         state: present
 
     - name: Install Java
@@ -30,20 +30,29 @@
         state: present
       when: ansible_distribution == "Ubuntu"
 
-    - name: Install Apache Tomcat
-      become_user: root
+- name: Install Apache Tomcat
+  hosts: all
+  become: yes
+  tasks:
+    - name: Download Apache Tomcat 7.0.94
       get_url:
-        url: "https://downloads.apache.org/tomcat/tomcat-{{ tomcat_version }}/v{{ tomcat_version }}.{{ tomcat_version_minor }}/bin/apache-tomcat-{{ tomcat_version }}.{{ tomcat_version_minor }}.tar.gz"
-        dest: "/tmp/apache-tomcat-{{ tomcat_version }}.{{ tomcat_version_minor }}.tar.gz"
-      register: tomcat_download
+        url: "https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.94/bin/apache-tomcat-7.0.94.tar.gz"
+        dest: "/tmp/apache-tomcat-7.0.94.tar.gz"
 
-    - name: Extract Tomcat tarball
-      become_user: root
+    - name: Extract Tomcat Archive
       ansible.builtin.unarchive:
-        src: "/tmp/apache-tomcat-{{ tomcat_version }}.{{ tomcat_version_minor }}.tar.gz"
-        dest: "/opt/"
+        src: "/tmp/apache-tomcat-7.0.94.tar.gz"
+        dest: "/opt"
         remote_src: yes
-      when: tomcat_download.changed
+
+    - name: Set Permissions
+      file:
+        path: "/opt/apache-tomcat-7.0.94"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        recurse: yes
+        mode: "0755"
 
     - name: Start Apache Tomcat
       systemd:
