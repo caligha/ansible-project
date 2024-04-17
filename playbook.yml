@@ -7,10 +7,4 @@
     - maven
     - java
     - tomcat
-    - deploy
- - name: Host Code
-   git:
-    repo: https://github.com/caligha/javaweb3.git
-    dest: /var/www/html
-    force: yes
-...
+    - git
