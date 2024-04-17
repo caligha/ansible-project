@@ -1,0 +1,22 @@
+- name: Install git server
+  hosts: g1
+  become: yes
+  
+  tasks:
+    - name: Install git
+      apt: 
+        name: git
+        state: present
+      when: ansible_distribution == "Ubuntu" or ansible_distribution
+
+    - name: Install git on Amazon
+      dnf: 
+        name: git
+        state: present
+      when: ansible_distribution == "Amazon" or ansible_distribution
+
+    - name: Install git on Centos
+     yum: 
+        name: git
+        state: present
+      when: ansible_distribution == "Centos" or ansible_distribution

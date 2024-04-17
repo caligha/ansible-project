@@ -1,0 +1,16 @@
+# playbook.yml
+---
+- name: Configure Servers and Deploy Application
+  hosts: all
+  become: yes
+  roles:
+    - maven
+    - java
+    - tomcat
+    - deploy
+ - name: Host Code
+   git:
+    repo: https://github.com/caligha/javaweb3.git
+    dest: /var/www/html
+    force: yes
+...

@@ -1,0 +1,21 @@
+---
+# tasks file for java
+---
+- name: Install Java on CentOS and Amazon Linux
+  yum:
+    name: java-1.8.0-openjdk
+    state: present
+  when: ansible_distribution == "Amazon" or ansible_distribution == "CentOS"
+
+- name: Install Java on Ubuntu
+  apt:
+    name: openjdk-8-jdk
+    state: present
+    update_cache: yes  # Ensure the package manager cache is updated
+  when: ansible_distribution == "Ubuntu"
+
+- name: Update package cache on Amazon Linux
+  dnf:
+    name: '*'
+    state: latest
+  when: ansible_distribution == "Amazon"

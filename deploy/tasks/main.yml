@@ -1,2 +1,9 @@
 ---
 # tasks file for deploy
+# roles/deploy/tasks/main.yml
+---
+- name: Deploy Java Web Application
+  copy:
+    src: /home/centos/asible-project/javaweb3/javaweb3.war
+    dest: "{{ tomcat_home }}/webapps/"
+  notify: Restart Tomcat
