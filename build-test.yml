@@ -1,5 +1,5 @@
 ---
-- name: Install Maven, Java, wget, and SonarQube
+- name: Install Maven, Java, wget, unzip, and SonarQube
   hosts: g2
   become: yes
   vars:
@@ -15,6 +15,11 @@
     - name: Install wget
       yum:
         name: wget
+        state: present
+
+    - name: Install unzip
+      yum:
+        name: unzip
         state: present
 
     - name: Download Apache Maven
