@@ -4,14 +4,14 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the source code from GitHub
-                git 'https://github.com/caligha/ansible-project.git'
+                // Checkout the source code from SCM (Git)
+                checkout scm
             }
         }
 
         stage('Build') {
             agent {
-                label 'maven1'
+                label 'maven' // Use the Maven agent for building
             }
             steps {
                 // Trigger Ansible Playbook for build
@@ -21,7 +21,7 @@ pipeline {
 
         stage('Test') {
             agent {
-                label 'maven1'
+                label 'maven' // Use the Maven agent for testing
             }
             steps {
                 // Run tests using Maven
@@ -31,7 +31,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             agent {
-                label 'maven1'
+                label 'maven' // Use the Maven agent for SonarQube analysis
             }
             steps {
                 // Execute SonarQube analysis
@@ -44,7 +44,7 @@ pipeline {
 
         stage('Deploy') {
             agent {
-                label 'ansible-master1'
+                label 'ansible' // Use the Ansible agent for deployment
             }
             steps {
                 // Trigger Ansible playbook for deployment
