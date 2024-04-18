@@ -25,6 +25,11 @@
     - name: Extract Apache Maven
       ansible.builtin.shell: "tar xf /tmp/apache-maven-{{ maven_version }}-bin.tar.gz -C /opt"
 
+    - name: Create directory for Maven profile script
+      ansible.builtin.file:
+        path: "/etc/profile.d"
+        state: directory
+
     - name: Create Maven profile script
       ansible.builtin.lineinfile:
         dest: "/etc/profile.d/maven.sh"
