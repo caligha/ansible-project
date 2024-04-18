@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        PATH = "/usr/bin:${env.PATH}"
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -13,9 +17,7 @@ pipeline {
                 label 'maven'
             }
             steps {
-                script {
-                    sh '/usr/bin/ansible-playbook /home/centos/ansible-project/build-test.yml -i inventory.ini'
-                }
+                sh '/usr/bin/ansible-playbook /home/centos/ansible-project/build-test.yml -i inventory.ini'
             }
         }
 
@@ -45,9 +47,7 @@ pipeline {
                 label 'ansible-master1'
             }
             steps {
-                script {
-                    ansiblePlaybook playbook: '/home/centos/ansible-project/playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
-                }
+                ansiblePlaybook playbook: '/home/centos/ansible-project/playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
             }
         }
     }
