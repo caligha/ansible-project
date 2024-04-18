@@ -51,7 +51,7 @@ pipeline {
             }
             steps {
                 // Trigger Ansible playbook for deployment
-                ansiblePlaybook playbook: 'playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/$(basename target/*.war)"
+                ansiblePlaybook playbook: 'playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
             }
         }
     }
