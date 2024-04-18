@@ -2,12 +2,7 @@
 - name: Install Java and Apache Tomcat
   hosts: all
   become: yes
-  tasks:
-    - name: Include Tomcat role
-      include_role:
-        name: tomcat
-
-    - name: Include Git role
-      include_role:
-        name: git
+  roles:
+    - tomcat
+    - git
 
