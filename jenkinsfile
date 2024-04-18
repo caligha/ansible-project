@@ -14,7 +14,11 @@ pipeline {
             }
             steps {
                 script {
-                    ansiblePlaybook playbook: '/home/centos/ansible-project/build-test.yml', inventory: 'inventory.ini', installation: 'ansible'
+                    ansiblePlaybook(
+                        playbook: '/home/centos/ansible-project/build-test.yml',
+                        inventory: '/home/centos/ansible-project/inventory.ini',
+                        installation: 'ansible'
+                    )
                 }
             }
         }
@@ -46,7 +50,12 @@ pipeline {
             }
             steps {
                 script {
-                    ansiblePlaybook playbook: '/home/centos/ansible-project/playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
+                    ansiblePlaybook(
+                        playbook: '/home/centos/ansible-project/playbookrole.yml',
+                        inventory: '/home/centos/ansible-project/inventory.ini',
+                        credentialsId: 'ansible-credentials',
+                        extras: "-e war_file=~/\$(basename target/*.war)"
+                    )
                 }
             }
         }
