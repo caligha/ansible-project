@@ -28,11 +28,9 @@
       register: maven_dir
 
     - name: Extract Maven
-      ansible.builtin.unarchive:
-        src: "/tmp/apache-maven-{{ maven_version }}.tar.gz"
-        dest: "/opt/"
-        remote_src: yes
-        extra_opts: --strip-components=1
+      command: "tar -xf /tmp/apache-maven-{{ maven_version }}.tar.gz -C /opt/ --strip-components=1"
+      args:
+        executable: /bin/bash
       when: maven_version is defined and not maven_dir.stat.exists
 
     - name: Set Maven environment variables
