@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    
+    environment {
+        MAVEN_HOME = tool 'Maven'
+    }
+    
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    sh "${MAVEN_HOME}/bin/mvn clean package"
+                    stash name: 'war', includes: 'target/*.war'
+                }
+            }
+        }
+        
+        stage('Transfer WAR to Slave') {
+            agent {
+                label 'slave1'
+            }
+            steps {
+                script {
+                    unstash 'war'
+                    sh "scp -o StrictHostKeyChecking=no target/*.war jenkins@<slave1_ip>:~/"
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                script {
+                    ansiblePlaybook(
+                        playbook: 'deploy.yml',
+                        inventory: 'inventory.ini',
+                        credentialsId: 'ansible-credentials',
+                        extras: "-e war_file=~/$(basename target/*.war)"
+                    )
+                }
+            }
+        }
+    }
+}

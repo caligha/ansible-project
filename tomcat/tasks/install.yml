@@ -1,24 +1,67 @@
 ---
-- name: Install Apache Tomcat
+- name: Install Java and Apache Tomcat
   hosts: all
   become: yes
   tasks:
-    - name: Download Apache Tomcat 7.0.94
-      get_url:
-        url: "https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.94/bin/apache-tomcat-7.0.94.tar.gz"
-        dest: "/tmp/apache-tomcat-7.0.94.tar.gz"
+    - name: Install Java (Amazon Corretto)
+      yum:
+        name: 
+          - java-17-amazon-corretto
+          - java-17-amazon-corretto-devel
+        state: present
+      when: ansible_os_family == 'RedHat' and ansible_distribution == 'Amazon'
 
-    - name: Extract Tomcat Archive
-      ansible.builtin.unarchive:
-        src: "/tmp/apache-tomcat-7.0.94.tar.gz"
-        dest: "/opt"
-        remote_src: yes
+    - name: Set JAVA_HOME environment variable
+      lineinfile:
+        dest: /etc/environment
+        line: 'JAVA_HOME=/usr/lib/jvm/java-17-openjdk'
+        state: present
+      when: ansible_os_family == 'RedHat' and ansible_distribution == 'Amazon'
 
-    - name: Set Permissions
+    - name: Install Java (OpenJDK)
+      yum:
+        name: java-17-openjdk-devel
+        state: present
+      when: ansible_os_family == 'RedHat' and ansible_distribution == 'CentOS'
+
+    - name: Set JAVA_HOME environment variable
+      lineinfile:
+        dest: /etc/environment
+        line: 'JAVA_HOME=/usr/lib/jvm/java-17-openjdk'
+        state: present
+      when: ansible_os_family == 'RedHat' and ansible_distribution == 'CentOS'
+
+    - name: Update apt-get repo and cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == 'Debian'
+
+    - name: Install Java (OpenJDK)
+      apt:
+        name: openjdk-17-jdk
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Create Tomcat Directory
       file:
-        path: "/opt/apache-tomcat-7.0.94"
+        path: /opt/tomcat
+        mode: '0755'
         state: directory
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
-        recurse: yes
-        mode: "0755"
+
+    - name: Download Apache Tomcat
+      get_url:
+        url: "http://archive.apache.org/dist/tomcat/tomcat-9/v9.0.86/bin/apache-tomcat-9.0.86.tar.gz"
+        dest: "/tmp/"
+        validate_certs: yes
+
+    - name: Extract Tomcat
+      shell: "tar -xzvf /tmp/apache-tomcat-9.0.86.tar.gz -C /opt/tomcat --strip-components=1"
+      args:
+        warn: no
+
+    - name: Start Tomcat service
+      shell: "/opt/tomcat/bin/startup.sh"
+      async: 1
+      poll: 0
+      ignore_errors: yes  # Ignore errors if Tomcat is already running
