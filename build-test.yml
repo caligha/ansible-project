@@ -5,7 +5,8 @@
   vars:
     maven_version: "3.9.6"
     java_version: "11"
-    sonarqube_version: "6.7.7"
+    sonarqube_version: "8.9.2"
+
   tasks:
     - name: Install Java
       yum:
@@ -71,10 +72,16 @@
         src: "/tmp/sonarqube-{{ sonarqube_version }}.zip"
         dest: "/opt/"
         remote_src: yes
-      when: sonarqube_version is defined
+
+    - name: Ensure SonarQube directory ownership
+      ansible.builtin.file:
+        path: "/opt/sonarqube-{{ sonarqube_version }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        recurse: yes
 
     - name: Start SonarQube service
-      ansible.builtin.systemd:
+      systemd:
         name: sonarqube
         state: started
         enabled: yes
