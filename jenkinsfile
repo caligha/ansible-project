@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout the source code from SCM (Git)
-                checkout scm
+                git 'https://github.com/caligha/asible-project.git'
             }
         }
 
@@ -15,7 +15,9 @@ pipeline {
             }
             steps {
                 // Trigger Ansible Playbook for build
-                ansiblePlaybook playbook: 'build-test.yml', inventory: 'inventory.ini'
+                script {
+                    ansiblePlaybook playbook: 'build-test.yml', inventory: 'inventory.ini'
+                }
             }
         }
 
@@ -48,7 +50,9 @@ pipeline {
             }
             steps {
                 // Trigger Ansible playbook for deployment
-                ansiblePlaybook playbook: 'playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
+                script {
+                    ansiblePlaybook playbook: 'playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
+                }
             }
         }
     }
