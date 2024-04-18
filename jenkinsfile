@@ -1,43 +1,65 @@
 pipeline {
-    agent any
-    
-    environment {
-        MAVEN_HOME = tool 'Maven'
-    }
-    
+    agent none
+
     stages {
-        stage('Build') {
-            steps {
-                script {
-                    sh "${MAVEN_HOME}/bin/mvn clean package"
-                    stash name: 'war', includes: 'target/*.war'
-                }
-            }
-        }
-        
-        stage('Transfer WAR to Slave') {
+        stage('Checkout') {
             agent {
-                label 'slave1'
+                label 'ansible'
             }
             steps {
+                // Checkout the source code from GitHub
+                git 'https://github.com/caligha/ansible-project.git'
+            }
+        }
+
+        stage('Build') {
+            agent {
+                label 'maven1'
+            }
+            steps {
+                // Trigger Ansible Playbook for build
+                ansiblePlaybook playbook: 'build-test.yml', inventory: 'inventory.ini'
+            }
+        }
+
+        stage('Test') {
+            agent {
+                label 'maven'
+            }
+            steps {
+                // Run tests using Maven
+                sh 'mvn test'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            agent {
+                label 'maven'
+            }
+            steps {
+                // Execute SonarQube analysis
                 script {
-                    unstash 'war'
-                    sh "scp -o StrictHostKeyChecking=no target/*.war jenkins@<slave1_ip>:~/"
+                    def scannerHome = tool 'SonarQubeScanner'
+                    sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
         }
-        
+
         stage('Deploy') {
-            steps {
-                script {
-                    ansiblePlaybook(
-                        playbook: 'deploy.yml',
-                        inventory: 'inventory.ini',
-                        credentialsId: 'ansible-credentials',
-                        extras: "-e war_file=~/$(basename target/*.war)"
-                    )
-                }
+            agent {
+                label 'ansible-master1'
             }
+            steps {
+                // Trigger Ansible playbook for deployment
+                ansiblePlaybook playbook: 'playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/$(basename target/*.war)"
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up workspace
+            cleanWs()
         }
     }
 }
