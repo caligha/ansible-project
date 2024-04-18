@@ -4,39 +4,36 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Explicitly specify the Git repository URL and branch
                 git branch: 'main', url: 'https://github.com/caligha/asible-project.git'
             }
         }
 
         stage('Build') {
             agent {
-                label 'maven' // Use the Maven agent for building
+                label 'maven'
             }
             steps {
-                // Trigger Ansible Playbook for build
                 script {
-                    ansiblePlaybook playbook: 'build-test.yml', inventory: 'inventory.ini'
+                    // Specify the full path to ansible-playbook
+                    sh '/path/to/ansible-playbook build-test.yml -i inventory.ini'
                 }
             }
         }
 
         stage('Test') {
             agent {
-                label 'maven' // Use the Maven agent for testing
+                label 'maven'
             }
             steps {
-                // Run tests using Maven
                 sh 'mvn test'
             }
         }
 
         stage('SonarQube Analysis') {
             agent {
-                label 'maven' // Use the Maven agent for SonarQube analysis
+                label 'maven'
             }
             steps {
-                // Execute SonarQube analysis
                 script {
                     def scannerHome = tool 'SonarQubeScanner'
                     sh "${scannerHome}/bin/sonar-scanner"
@@ -46,12 +43,12 @@ pipeline {
 
         stage('Deploy') {
             agent {
-                label 'ansible-master1' // Use the Ansible agent for deployment
+                label 'ansible-master1'
             }
             steps {
-                // Trigger Ansible playbook for deployment
                 script {
-                    ansiblePlaybook playbook: 'playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
+                    // Specify the full path to ansible-playbook
+                    sh '/path/to/ansible-playbook playbookrole.yml -i inventory.ini --extra-vars "war_file=~/\$(basename target/*.war)"'
                 }
             }
         }
@@ -59,8 +56,8 @@ pipeline {
 
     post {
         always {
-            // Clean up workspace
             cleanWs()
         }
     }
 }
+
