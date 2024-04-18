@@ -11,7 +11,7 @@ pipeline {
 
         stage('Build') {
             agent {
-                label 'maven' // Use the Maven agent for building
+                label 'maven1' // Use the Maven agent for building
             }
             steps {
                 // Trigger Ansible Playbook for build
@@ -21,7 +21,7 @@ pipeline {
 
         stage('Test') {
             agent {
-                label 'maven' // Use the Maven agent for testing
+                label 'maven1' // Use the Maven agent for testing
             }
             steps {
                 // Run tests using Maven
@@ -31,7 +31,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             agent {
-                label 'maven' // Use the Maven agent for SonarQube analysis
+                label 'maven1' // Use the Maven agent for SonarQube analysis
             }
             steps {
                 // Execute SonarQube analysis
@@ -44,7 +44,7 @@ pipeline {
 
         stage('Deploy') {
             agent {
-                label 'ansible' // Use the Ansible agent for deployment
+                label 'ansible-master1' // Use the Ansible agent for deployment
             }
             steps {
                 // Trigger Ansible playbook for deployment
