@@ -1,6 +1,6 @@
 ---
 - name: Install Java (Amazon Corretto) on Amazon Linux
-  yum:
+  dnf:
     name: 
       - java-11-amazon-corretto
       - java-11-amazon-corretto-devel
@@ -16,7 +16,7 @@
 
 - name: Install Java (OpenJDK) on CentOS
   yum:
-    name: java-17-openjdk-devel
+    name: java-11-openjdk-devel
     state: present
   when: ansible_os_family == 'RedHat' and ansible_distribution == 'CentOS'
 
