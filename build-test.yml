@@ -17,33 +17,38 @@
         name: wget
         state: present
 
-    - name: Download Maven
+    - name: Download Apache Maven
       get_url:
-        url: "http://apache.mirrors.hoobly.com/maven/maven-3/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
-        dest: "/tmp/apache-maven-{{ maven_version }}.tar.gz"
+        url: "https://dlcdn.apache.org/maven/maven-3/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
+        dest: "/tmp/apache-maven-{{ maven_version }}-bin.tar.gz"
 
-    - name: Check if Maven directory exists
-      stat:
-        path: "/opt/apache-maven-{{ maven_version }}"
-      register: maven_dir
+    - name: Extract Apache Maven
+      ansible.builtin.shell: "tar xf /tmp/apache-maven-{{ maven_version }}-bin.tar.gz -C /opt"
 
-    - name: Extract Maven
-      command: "tar -xf /tmp/apache-maven-{{ maven_version }}.tar.gz -C /opt/ --strip-components=1"
-      args:
-        executable: /bin/bash
-      when: maven_version is defined and not maven_dir.stat.exists
-
-    - name: Set Maven environment variables
-      lineinfile:
-        dest: /etc/profile.d/maven.sh
+    - name: Create Maven profile script
+      ansible.builtin.lineinfile:
+        dest: "/etc/profile.d/maven.sh"
         line: |
-          export M2_HOME=/opt/apache-maven-{{ maven_version }}
-          export PATH=$PATH:$M2_HOME/bin
-      when: maven_version is defined
+          # Apache Maven Environmental Variables
+          # MAVEN_HOME for Maven 1 - M2_HOME for Maven 2
+          export JAVA_HOME=/usr/lib/jvm/jre-openjdk
+          export M2_HOME=/opt/maven
+          export MAVEN_HOME=/opt/maven
+          export PATH=${M2_HOME}/bin:${PATH}
 
-    - name: Reload profile
-      command: "source /etc/profile.d/maven.sh"
-      when: maven_version is defined
+    - name: Create symlink for Maven
+      ansible.builtin.file:
+        src: "/opt/apache-maven-{{ maven_version }}"
+        dest: "/opt/maven"
+        state: link
+
+    - name: Make maven.sh executable
+      ansible.builtin.file:
+        path: "/etc/profile.d/maven.sh"
+        mode: "a+x"
+
+    - name: Source maven.sh
+      ansible.builtin.shell: "source /etc/profile.d/maven.sh"
 
     - name: Download SonarQube
       get_url:
@@ -51,14 +56,14 @@
         dest: "/tmp/sonarqube-{{ sonarqube_version }}.zip"
 
     - name: Extract SonarQube
-      unarchive:
+      ansible.builtin.unarchive:
         src: "/tmp/sonarqube-{{ sonarqube_version }}.zip"
         dest: "/opt/"
         remote_src: yes
       when: sonarqube_version is defined
 
     - name: Start SonarQube service
-      systemd:
+      ansible.builtin.systemd:
         name: sonarqube
         state: started
         enabled: yes
