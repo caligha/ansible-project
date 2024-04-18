@@ -4,8 +4,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the source code from SCM (Git)
-                git 'https://github.com/caligha/asible-project.git'
+                // Explicitly specify the Git repository URL and branch
+                git branch: 'main', url: 'https://github.com/caligha/asible-project.git'
             }
         }
 
