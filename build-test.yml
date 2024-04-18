@@ -1,0 +1,61 @@
+---
+- name: Install Maven, Java, wget, and SonarQube
+  hosts: g2
+  become: yes
+  vars:
+    maven_version: "3.9.6"
+    java_version: "11"
+    sonarqube_version: "6.7.7"
+  tasks:
+    - name: Install Java
+      yum:
+        name: java-{{ java_version }}-openjdk
+        state: present
+
+    - name: Install wget
+      yum:
+        name: wget
+        state: present
+
+    - name: Download Maven
+      get_url:
+        url: "http://apache.mirrors.hoobly.com/maven/maven-3/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
+        dest: "/tmp/apache-maven-{{ maven_version }}.tar.gz"
+
+    - name: Extract Maven
+      unarchive:
+        src: "/tmp/apache-maven-{{ maven_version }}.tar.gz"
+        dest: "/opt/"
+        remote_src: yes
+        extra_opts: "--strip-components=1"
+      when: maven_version is defined
+
+    - name: Set Maven environment variables
+      lineinfile:
+        dest: /etc/profile.d/maven.sh
+        line: |
+          export M2_HOME=/opt/apache-maven-{{ maven_version }}
+          export PATH=$PATH:$M2_HOME/bin
+      when: maven_version is defined
+
+    - name: Reload profile
+      command: "source /etc/profile.d/maven.sh"
+      when: maven_version is defined
+
+    - name: Download SonarQube
+      get_url:
+        url: "https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-{{ sonarqube_version }}.zip"
+        dest: "/tmp/sonarqube-{{ sonarqube_version }}.zip"
+
+    - name: Extract SonarQube
+      unarchive:
+        src: "/tmp/sonarqube-{{ sonarqube_version }}.zip"
+        dest: "/opt/"
+        remote_src: yes
+      when: sonarqube_version is defined
+
+    - name: Start SonarQube service
+      systemd:
+        name: sonarqube
+        state: started
+        enabled: yes
