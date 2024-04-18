@@ -14,7 +14,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh '/home/centos/ansible-project/build-test.yml -i inventory.ini'
+                    sh '/home/centos/ansible-project/ansible-playbook /home/centos/ansible-project/build-test.yml -i inventory.ini'
                 }
             }
         }
