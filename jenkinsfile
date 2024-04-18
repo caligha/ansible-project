@@ -3,9 +3,6 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            agent {
-                label 'ansible'
-            }
             steps {
                 // Checkout the source code from GitHub
                 git 'https://github.com/caligha/ansible-project.git'
@@ -24,7 +21,7 @@ pipeline {
 
         stage('Test') {
             agent {
-                label 'maven'
+                label 'maven1'
             }
             steps {
                 // Run tests using Maven
@@ -34,7 +31,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             agent {
-                label 'maven'
+                label 'maven1'
             }
             steps {
                 // Execute SonarQube analysis
