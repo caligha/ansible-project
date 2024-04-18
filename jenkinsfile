@@ -13,7 +13,9 @@ pipeline {
                 label 'maven'
             }
             steps {
-                sh '/path/to/ansible-playbook build-test.yml -i inventory.ini'
+                script {
+                    sh '/home/centos/ansible-project/build-test.yml -i inventory.ini'
+                }
             }
         }
 
@@ -43,7 +45,9 @@ pipeline {
                 label 'ansible-master1'
             }
             steps {
-                ansiblePlaybook playbook: 'playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
+                script {
+                    ansiblePlaybook playbook: '/home/centos/ansible-project/playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
+                }
             }
         }
     }
@@ -54,4 +58,3 @@ pipeline {
         }
     }
 }
-
