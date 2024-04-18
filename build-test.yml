@@ -81,7 +81,5 @@
         recurse: yes
 
     - name: Start SonarQube service
-      systemd:
-        name: sonarqube
-        state: started
-        enabled: yes
+      ansible.builtin.command:
+        cmd: "/opt/sonarqube-{{ sonarqube_version }}/bin/linux-x86-64/sonar.sh start"
