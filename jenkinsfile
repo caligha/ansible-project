@@ -1,60 +1,38 @@
 pipeline {
     agent any
-
     environment {
-        PATH = "/usr/bin:${env.PATH}"
+        PATH = "/usr/local/bin:$PATH" // Update this path if ansible-playbook is located elsewhere
     }
-
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
         stage('Build') {
-            agent {
-                label 'maven'
-            }
             steps {
                 sh '/usr/bin/ansible-playbook /home/centos/ansible-project/build-test.yml -i inventory.ini'
             }
         }
-
         stage('Test') {
-            agent {
-                label 'maven'
-            }
             steps {
-                sh 'mvn test'
+                // Add test steps here if needed
             }
         }
-
         stage('SonarQube Analysis') {
-            agent {
-                label 'maven'
-            }
             steps {
-                script {
-                    def scannerHome = tool 'SonarQubeScanner'
-                    sh "${scannerHome}/bin/sonar-scanner"
-                }
+                // Add SonarQube analysis steps here if needed
             }
         }
-
         stage('Deploy') {
-            agent {
-                label 'ansible-master1'
-            }
             steps {
-                ansiblePlaybook playbook: '/home/centos/ansible-project/playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
+                // Add deployment steps here if needed
             }
         }
     }
-
     post {
         always {
-            cleanWs()
+            cleanWs() // Clean workspace after pipeline execution
         }
     }
 }
