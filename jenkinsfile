@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/caligha/asible-project.git'
+                checkout scm
             }
         }
 
@@ -13,10 +13,7 @@ pipeline {
                 label 'maven'
             }
             steps {
-                script {
-                    // Specify the full path to ansible-playbook
-                    sh '/path/to/ansible-playbook build-test.yml -i inventory.ini'
-                }
+                sh '/path/to/ansible-playbook build-test.yml -i inventory.ini'
             }
         }
 
@@ -46,10 +43,7 @@ pipeline {
                 label 'ansible-master1'
             }
             steps {
-                script {
-                    // Specify the full path to ansible-playbook
-                    sh '/path/to/ansible-playbook playbookrole.yml -i inventory.ini --extra-vars "war_file=~/\$(basename target/*.war)"'
-                }
+                ansiblePlaybook playbook: 'playbookrole.yml', inventory: 'inventory.ini', credentialsId: 'ansible-credentials', extras: "-e war_file=~/\$(basename target/*.war)"
             }
         }
     }
