@@ -13,13 +13,8 @@ pipeline {
                 label 'maven'
             }
             steps {
-                script {
-                    ansiblePlaybook(
-                        playbook: 'build-test.yml',
-                        inventory: 'inventory.ini',
-                        installation: 'ansible'
-                    )
-                }
+                sh 'mvn clean package' // Assuming you need to clean before packaging
+                stash name: 'jenkins-pipeline', includes: 'target/*.war'
             }
         }
 
@@ -50,12 +45,8 @@ pipeline {
             }
             steps {
                 script {
-                    ansiblePlaybook(
-                        playbook: '/home/centos/ansible-project/playbookrole.yml',
-                        inventory: '/home/centos/ansible-project/inventory.ini',
-                        credentialsId: 'jenkins',
-                        extras: "-e war_file=~/\$(basename target/*.war)"
-                    )
+                    unstash 'jenkins-pipeline'
+                    sh "ansible-playbook -i /home/centos/ansible-project/inventory.ini /home/centos/ansible-project/playbookrole.yml --extra-vars 'war_file=${env.WORKSPACE}/target/*.war'"
                 }
             }
         }
@@ -67,4 +58,5 @@ pipeline {
         }
     }
 }
+
 
