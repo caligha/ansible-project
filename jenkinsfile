@@ -53,7 +53,7 @@ pipeline {
                     ansiblePlaybook(
                         playbook: '/home/centos/ansible-project/playbookrole.yml',
                         inventory: '/home/centos/ansible-project/inventory.ini',
-                        credentialsId: 'ansible-credentials',
+                        credentialsId: 'jenkins',
                         extras: "-e war_file=~/\$(basename target/*.war)"
                     )
                 }
