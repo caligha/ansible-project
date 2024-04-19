@@ -27,18 +27,6 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            agent {
-                label 'maven'
-            }
-            steps {
-                script {
-                    def scannerHome = tool 'SonarQubeScanner'
-                    sh "${scannerHome}/bin/sonar-scanner"
-                }
-            }
-        }
-
         stage('Deploy') {
             agent {
                 label 'ansible-master1'
@@ -58,5 +46,6 @@ pipeline {
         }
     }
 }
+
 
 
