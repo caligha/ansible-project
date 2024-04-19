@@ -15,8 +15,8 @@ pipeline {
             steps {
                 script {
                     ansiblePlaybook(
-                        playbook: 'ansible-project/build-test.yml',
-                        inventory: 'ansible-project/inventory.ini',
+                        playbook: '/ansible-project/build-test.yml',
+                        inventory: '/ansible-project/inventory.ini',
                         installation: 'ansible'
                     )
                 }
